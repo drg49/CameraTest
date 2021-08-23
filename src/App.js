@@ -1,75 +1,40 @@
-import * as React from 'react';
-import '@progress/kendo-theme-default/dist/all.css';
-import { Upload } from '@progress/kendo-react-upload';
-const fileStatuses = ['UploadFailed', 'Initial', 'Selected', 'Uploading', 'Uploaded', 'RemoveFailed', 'Removing'];
+import React, {useEffect, useRef} from 'react'
+import "./App.css";
 
 const App = () => {
-  const [files, setFiles] = React.useState([]);
-  const [events, setEvents] = React.useState([]);
-  const [filePreviews, setFilePreviews] = React.useState({});
-  const [affectedFiles, setAffectedFiles] = React.useState([]);
-  React.useEffect(() => {
-    affectedFiles.filter(file => !file.validationErrors).forEach(file => {
-      const reader = new FileReader();
 
-      reader.onloadend = ev => {
-        setFilePreviews({ ...filePreviews,
-          [file.uid]: ev.target.result
-        });
-      };
+  const inputFileRef = useRef()
+  const divRef = useRef()
 
-      reader.readAsDataURL(file.getRawFile());
-    });
-  }, [affectedFiles, filePreviews]);
+  function handleChange (e) {
+    const fileUploaded = e.target.files[0]
+    console.log(fileUploaded)
+    console.log(fileUploaded.name)
 
-  const onAdd = event => {
-    setFiles(event.newState);
-    setEvents([...events, `File selected: ${event.affectedFiles[0].name}`]);
-    setAffectedFiles(event.affectedFiles);
-  };
+  }
 
-  const onRemove = event => {
-    let newFilePreviews = { ...filePreviews
-    };
-    event.affectedFiles.forEach(file => {
-      delete newFilePreviews[file.uid];
-    });
-    setFiles(event.newState);
-    setEvents([...events, `File removed: ${event.affectedFiles[0].name}`]);
-    setFilePreviews(newFilePreviews);
-  };
+  function appendFiles() {
+    console.log(inputFileRef.current.files) 
+  }
 
-  const onProgress = event => {
-    setFiles(event.newState);
-    setEvents([...events, `On Progress: ${event.affectedFiles[0].progress} %`]);
-  };
-
-  const onStatusChange = event => {
-    const file = event.affectedFiles[0];
-    setFiles(event.newState);
-    setEvents([...events, `File '${file.name}' status changed to: ${fileStatuses[file.status]}`]);
-  };
+  function mimicClick(e) {
+    e.preventDefault()
+    inputFileRef.current.click()
+  }
 
   return(
-    <div>
-      <Upload 
-        batch={false} 
-        multiple={true} 
-        files={files} 
-        onAdd={onAdd} 
-        onRemove={onRemove} 
-        onProgress={onProgress} 
-        onStatusChange={onStatusChange} 
-        withCredentials={false} 
-        saveUrl={'https://demos.telerik.com/kendo-ui/service-v4/upload/save'} 
-        removeUrl={'https://demos.telerik.com/kendo-ui/service-v4/upload/remove'}
-        accept="image/*"
-        capture="environment" 
-      />
-      
-      
-        
-    </div>
+    <>
+      <div ref={divRef}>
+        <input type="file" id="upload"  onChange={handleChange} ref={inputFileRef} multiple/>
+      </div>
+      <section id="input-section">
+        <button onClick={(e) => mimicClick(e)}>Select Files</button>
+      </section>
+      <ul id="listRef">
+
+      </ul>
+      <button onClick={appendFiles}>Check Files</button>
+    </>
   )
 };
 
